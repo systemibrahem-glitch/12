@@ -1,7 +1,12 @@
--- إعداد قاعدة البيانات المبسط
--- هذا الملف ينشئ الجداول والبيانات بدون استخدام ON CONFLICT
+-- إعداد قاعدة البيانات المبسط جداً
+-- هذا الملف يحل جميع مشاكل التكرار والقيود
 
--- إنشاء جدول المتاجر
+-- حذف جميع البيانات الموجودة أولاً
+DELETE FROM users WHERE username = 'ibrahim_owner';
+DELETE FROM stores WHERE email = 'ibrahim@example.com';
+DELETE FROM currencies WHERE code IN ('SAR', 'USD', 'EUR', 'AED', 'KWD', 'QAR', 'BHD', 'OMR', 'JOD', 'EGP');
+
+-- إنشاء جدول المتاجر إذا لم يكن موجوداً
 CREATE TABLE IF NOT EXISTS stores (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
@@ -18,7 +23,7 @@ CREATE TABLE IF NOT EXISTS stores (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
--- إنشاء جدول المستخدمين
+-- إنشاء جدول المستخدمين إذا لم يكن موجوداً
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   username VARCHAR(50) UNIQUE NOT NULL,
@@ -113,7 +118,7 @@ BEGIN
     END IF;
 END $$;
 
--- إنشاء جدول العملات
+-- إنشاء جدول العملات إذا لم يكن موجوداً
 CREATE TABLE IF NOT EXISTS currencies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   store_id UUID REFERENCES stores(id) ON DELETE CASCADE,
@@ -126,13 +131,14 @@ CREATE TABLE IF NOT EXISTS currencies (
   UNIQUE(store_id, code)
 );
 
--- إزالة القيود المعيقة للعملات
+-- إزالة جميع القيود المعيقة للعملات
 ALTER TABLE currencies DROP CONSTRAINT IF EXISTS currencies_code_check;
+ALTER TABLE currencies DROP CONSTRAINT IF EXISTS currencies_code_key;
+ALTER TABLE currencies DROP CONSTRAINT IF EXISTS currencies_pkey;
 
--- حذف البيانات الموجودة أولاً لتجنب التكرار
-DELETE FROM users WHERE username = 'ibrahim_owner';
-DELETE FROM stores WHERE email = 'ibrahim@example.com';
-DELETE FROM currencies WHERE code IN ('SAR', 'USD', 'EUR', 'AED', 'KWD', 'QAR', 'BHD', 'OMR', 'JOD', 'EGP');
+-- إعادة إنشاء القيود الصحيحة
+ALTER TABLE currencies ADD CONSTRAINT currencies_pkey PRIMARY KEY (id);
+ALTER TABLE currencies ADD CONSTRAINT unique_currencies_store_code UNIQUE (store_id, code);
 
 -- إدراج المتجر
 INSERT INTO stores (
