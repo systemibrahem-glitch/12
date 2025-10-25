@@ -20,6 +20,16 @@
 **إذا كنت تواجه مشاكل مع جدول العملات، استخدم هذا الملف:**
 
 ```sql
+-- انسخ محتوى insert-currencies-simple.sql وضعه في Supabase SQL Editor
+```
+
+هذا الملف سيتعامل مع المشكلة بسرعة:
+- يزيل القيود المعيقة
+- يدرج العملات الافتراضية
+- حل بسيط وسريع
+
+**أو للحل الشامل:**
+```sql
 -- انسخ محتوى setup-currencies.sql وضعه في Supabase SQL Editor
 ```
 
@@ -160,6 +170,11 @@ pnpm init-db
 4. **الأمان**: احفظ بيانات تسجيل الدخول في مكان آمن
 
 ## استكشاف الأخطاء
+
+### خطأ: "currencies_code_check constraint violation"
+- **الحل السريع**: شغل `insert-currencies-simple.sql`
+- **الحل الشامل**: شغل `setup-currencies.sql`
+- هذا الخطأ يحدث بسبب قيود على عمود code
 
 ### خطأ: "column 'store_id' does not exist"
 - **الحل**: شغل `fix-currencies-table.sql` أولاً لإضافة عمود store_id

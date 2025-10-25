@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS currencies (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
+-- إزالة القيود المعيقة إذا كانت موجودة
+ALTER TABLE currencies DROP CONSTRAINT IF EXISTS currencies_code_check;
+
 -- الخطوة 2: إضافة عمود store_id إذا لم يكن موجوداً
 DO $$ 
 BEGIN
