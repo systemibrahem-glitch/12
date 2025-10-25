@@ -108,18 +108,57 @@ INSERT INTO users (
 ) ON CONFLICT (username) DO NOTHING;
 
 -- إدراج العملات الافتراضية للمتجر
-INSERT INTO currencies (store_id, code, name, symbol, is_active) VALUES
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'SAR', 'الريال السعودي', 'ر.س', true),
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'USD', 'الدولار الأمريكي', '$', true),
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'EUR', 'اليورو', '€', true),
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'AED', 'الدرهم الإماراتي', 'د.إ', true),
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'KWD', 'الدينار الكويتي', 'د.ك', true),
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'QAR', 'الريال القطري', 'ر.ق', true),
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'BHD', 'الدينار البحريني', 'د.ب', true),
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'OMR', 'الريال العماني', 'ر.ع', true),
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'JOD', 'الدينار الأردني', 'د.أ', true),
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'EGP', 'الجنيه المصري', 'ج.م', true)
-ON CONFLICT (store_id, code) DO NOTHING;
+-- التحقق من وجود عمود store_id وإدراج العملات وفقاً لذلك
+DO $$ 
+DECLARE
+    store_uuid UUID;
+    has_store_id BOOLEAN;
+BEGIN
+    -- الحصول على معرف المتجر
+    SELECT id INTO store_uuid FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1;
+    
+    -- التحقق من وجود عمود store_id
+    SELECT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'currencies' 
+        AND column_name = 'store_id'
+    ) INTO has_store_id;
+    
+    -- إدراج العملات حسب وجود عمود store_id
+    IF has_store_id THEN
+        -- إدراج العملات مع store_id
+        INSERT INTO currencies (store_id, code, name, symbol, is_active) VALUES
+        (store_uuid, 'SAR', 'الريال السعودي', 'ر.س', true),
+        (store_uuid, 'USD', 'الدولار الأمريكي', '$', true),
+        (store_uuid, 'EUR', 'اليورو', '€', true),
+        (store_uuid, 'AED', 'الدرهم الإماراتي', 'د.إ', true),
+        (store_uuid, 'KWD', 'الدينار الكويتي', 'د.ك', true),
+        (store_uuid, 'QAR', 'الريال القطري', 'ر.ق', true),
+        (store_uuid, 'BHD', 'الدينار البحريني', 'د.ب', true),
+        (store_uuid, 'OMR', 'الريال العماني', 'ر.ع', true),
+        (store_uuid, 'JOD', 'الدينار الأردني', 'د.أ', true),
+        (store_uuid, 'EGP', 'الجنيه المصري', 'ج.م', true)
+        ON CONFLICT (store_id, code) DO NOTHING;
+        
+        RAISE NOTICE 'تم إدراج العملات مع store_id';
+    ELSE
+        -- إدراج العملات بدون store_id
+        INSERT INTO currencies (code, name, symbol, is_active) VALUES
+        ('SAR', 'الريال السعودي', 'ر.س', true),
+        ('USD', 'الدولار الأمريكي', '$', true),
+        ('EUR', 'اليورو', '€', true),
+        ('AED', 'الدرهم الإماراتي', 'د.إ', true),
+        ('KWD', 'الدينار الكويتي', 'د.ك', true),
+        ('QAR', 'الريال القطري', 'ر.ق', true),
+        ('BHD', 'الدينار البحريني', 'د.ب', true),
+        ('OMR', 'الريال العماني', 'ر.ع', true),
+        ('JOD', 'الدينار الأردني', 'د.أ', true),
+        ('EGP', 'الجنيه المصري', 'ج.م', true)
+        ON CONFLICT (code) DO NOTHING;
+        
+        RAISE NOTICE 'تم إدراج العملات بدون store_id';
+    END IF;
+END $$;
 
 -- إدراج فئات الفواتير الافتراضية
 INSERT INTO invoice_categories (id, store_id, name, description, is_active, created_at, updated_at) VALUES
