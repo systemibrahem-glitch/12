@@ -5,10 +5,6 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = ""
-  VITE_SUPABASE_URL = "https://imuequpezaixljuxljdn.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltdWVxdXBlemFpeGxqdXhsamRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExOTI5MDEsImV4cCI6MjA3Njc2ODkwMX0.uuVPRX9J_QBzZmjWwv6uGaDAc1YRd7LjBTK0NVfRsHo"
-  VITE_APP_TITLE = "نظام إبراهيم للمحاسبة"
-  VITE_APP_LOGO = "/logo.png"
 
 [[redirects]]
   from = "/*"
