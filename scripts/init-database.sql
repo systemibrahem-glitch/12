@@ -1,19 +1,8 @@
 -- تهيئة قاعدة البيانات لنظام إبراهيم للمحاسبة
 -- هذا الملف يحتوي على البيانات الأولية للمالك والمتجر
 
--- إدراج العملات الافتراضية
-INSERT INTO currencies (code, name, symbol, is_active) VALUES
-('SAR', 'الريال السعودي', 'ر.س', true),
-('USD', 'الدولار الأمريكي', '$', true),
-('EUR', 'اليورو', '€', true),
-('AED', 'الدرهم الإماراتي', 'د.إ', true),
-('KWD', 'الدينار الكويتي', 'د.ك', true),
-('QAR', 'الريال القطري', 'ر.ق', true),
-('BHD', 'الدينار البحريني', 'د.ب', true),
-('OMR', 'الريال العماني', 'ر.ع', true),
-('JOD', 'الدينار الأردني', 'د.أ', true),
-('EGP', 'الجنيه المصري', 'ج.م', true)
-ON CONFLICT (code) DO NOTHING;
+-- إدراج العملات الافتراضية (بعد إنشاء المتجر)
+-- سيتم إدراجها بعد إنشاء المتجر
 
 -- إدراج المتجر الافتراضي
 INSERT INTO stores (
@@ -117,6 +106,20 @@ INSERT INTO users (
   NOW(),
   NOW()
 ) ON CONFLICT (username) DO NOTHING;
+
+-- إدراج العملات الافتراضية للمتجر
+INSERT INTO currencies (store_id, code, name, symbol, is_active) VALUES
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'SAR', 'الريال السعودي', 'ر.س', true),
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'USD', 'الدولار الأمريكي', '$', true),
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'EUR', 'اليورو', '€', true),
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'AED', 'الدرهم الإماراتي', 'د.إ', true),
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'KWD', 'الدينار الكويتي', 'د.ك', true),
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'QAR', 'الريال القطري', 'ر.ق', true),
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'BHD', 'الدينار البحريني', 'د.ب', true),
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'OMR', 'الريال العماني', 'ر.ع', true),
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'JOD', 'الدينار الأردني', 'د.أ', true),
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'EGP', 'الجنيه المصري', 'ج.م', true)
+ON CONFLICT (store_id, code) DO NOTHING;
 
 -- إدراج فئات الفواتير الافتراضية
 INSERT INTO invoice_categories (id, store_id, name, description, is_active, created_at, updated_at) VALUES

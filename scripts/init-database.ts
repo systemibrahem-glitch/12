@@ -121,10 +121,10 @@ async function initializeDatabase() {
     // 4. إضافة العملات الافتراضية
     console.log('💰 إضافة العملات الافتراضية...');
     const currencies = [
-      { code: 'SAR', name: 'الريال السعودي', symbol: 'ر.س', is_active: true },
-      { code: 'USD', name: 'الدولار الأمريكي', symbol: '$', is_active: true },
-      { code: 'EUR', name: 'اليورو', symbol: '€', is_active: true },
-      { code: 'AED', name: 'الدرهم الإماراتي', symbol: 'د.إ', is_active: true }
+      { store_id: store.id, code: 'SAR', name: 'الريال السعودي', symbol: 'ر.س', is_active: true },
+      { store_id: store.id, code: 'USD', name: 'الدولار الأمريكي', symbol: '$', is_active: true },
+      { store_id: store.id, code: 'EUR', name: 'اليورو', symbol: '€', is_active: true },
+      { store_id: store.id, code: 'AED', name: 'الدرهم الإماراتي', symbol: 'د.إ', is_active: true }
     ];
 
     const { error: currencyError } = await supabase

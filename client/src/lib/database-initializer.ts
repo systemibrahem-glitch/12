@@ -233,10 +233,10 @@ export class DatabaseInitializer {
 
       // إضافة العملات
       const currencies = [
-        { code: 'SAR', name: 'الريال السعودي', symbol: 'ر.س', is_active: true },
-        { code: 'USD', name: 'الدولار الأمريكي', symbol: '$', is_active: true },
-        { code: 'EUR', name: 'اليورو', symbol: '€', is_active: true },
-        { code: 'AED', name: 'الدرهم الإماراتي', symbol: 'د.إ', is_active: true }
+        { store_id: storeId, code: 'SAR', name: 'الريال السعودي', symbol: 'ر.س', is_active: true },
+        { store_id: storeId, code: 'USD', name: 'الدولار الأمريكي', symbol: '$', is_active: true },
+        { store_id: storeId, code: 'EUR', name: 'اليورو', symbol: '€', is_active: true },
+        { store_id: storeId, code: 'AED', name: 'الدرهم الإماراتي', symbol: 'د.إ', is_active: true }
       ];
 
       await supabase.from('currencies').insert(currencies);
