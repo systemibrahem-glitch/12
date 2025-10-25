@@ -46,6 +46,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error('Error checking auth:', error);
+      // Clear invalid data
+      localStorage.removeItem('ibrahim_user');
+      localStorage.removeItem('ibrahim_store');
     } finally {
       setLoading(false);
     }
@@ -67,23 +70,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const foundUser = users[0] as User;
 
-      // Verify password using PostgreSQL crypt function
-      const { data: passwordCheck, error: passwordError } = await supabase
-        .rpc('check_password', { 
-          input_password: password, 
-          stored_hash: foundUser.password_hash 
-        });
-
-      let isValidPassword = false;
-
-      if (passwordError) {
-        console.error('Password check error:', passwordError);
-        // Fallback to bcryptjs if PostgreSQL function fails
-        const bcrypt = await import('bcryptjs');
-        isValidPassword = await bcrypt.compare(password, foundUser.password_hash);
-      } else {
-        isValidPassword = passwordCheck;
-      }
+      // Verify password using bcryptjs (reliable method)
+      const bcrypt = await import('bcryptjs');
+      const isValidPassword = await bcrypt.compare(password, foundUser.password_hash);
 
       if (!isValidPassword) {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
