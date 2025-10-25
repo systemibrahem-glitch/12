@@ -77,6 +77,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
       }
 
+      // Check if user has a valid store_id
+      if (!foundUser.store_id) {
+        return { success: false, error: 'المستخدم غير مرتبط بمتجر' };
+      }
+
       // Get the store
       const { data: storeData, error: storeError } = await supabase
         .from('stores')
@@ -84,8 +89,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq('id', foundUser.store_id)
         .single();
 
-      if (storeError || !storeData) {
-        return { success: false, error: 'خطأ في تحميل بيانات المتجر' };
+      if (storeError) {
+        console.error('Store error:', storeError);
+        return { success: false, error: `خطأ في تحميل بيانات المتجر: ${storeError.message}` };
+      }
+
+      if (!storeData) {
+        return { success: false, error: 'المتجر غير موجود' };
       }
 
       const foundStore = storeData as Store;
