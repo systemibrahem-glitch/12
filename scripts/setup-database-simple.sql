@@ -1,5 +1,5 @@
--- إنشاء قاعدة البيانات الكاملة من الصفر
--- هذا الملف ينشئ جميع الجداول والبيانات المطلوبة
+-- إعداد قاعدة البيانات المبسط
+-- هذا الملف ينشئ الجداول والبيانات بدون استخدام ON CONFLICT
 
 -- إنشاء جدول المتاجر
 CREATE TABLE IF NOT EXISTS stores (
@@ -129,6 +129,11 @@ CREATE TABLE IF NOT EXISTS currencies (
 -- إزالة القيود المعيقة للعملات
 ALTER TABLE currencies DROP CONSTRAINT IF EXISTS currencies_code_check;
 
+-- حذف البيانات الموجودة أولاً لتجنب التكرار
+DELETE FROM users WHERE username = 'ibrahim_owner';
+DELETE FROM stores WHERE email = 'ibrahim@example.com';
+DELETE FROM currencies WHERE store_id IN (SELECT id FROM stores WHERE email = 'ibrahim@example.com');
+
 -- إدراج المتجر
 INSERT INTO stores (
   id,
@@ -169,9 +174,7 @@ INSERT INTO stores (
   }'::jsonb,
   NOW(),
   NOW()
-) ON CONFLICT (email) DO UPDATE SET
-  name = EXCLUDED.name,
-  updated_at = NOW();
+);
 
 -- إدراج المستخدم المالك
 INSERT INTO users (
@@ -230,10 +233,7 @@ INSERT INTO users (
   'light',
   NOW(),
   NOW()
-) ON CONFLICT (username) DO UPDATE SET
-  store_id = EXCLUDED.store_id,
-  password_hash = EXCLUDED.password_hash,
-  updated_at = NOW();
+);
 
 -- إدراج العملات الافتراضية
 INSERT INTO currencies (store_id, code, name, symbol, is_active) VALUES
@@ -246,8 +246,7 @@ INSERT INTO currencies (store_id, code, name, symbol, is_active) VALUES
 ((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'BHD', 'الدينار البحريني', 'د.ب', true),
 ((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'OMR', 'الريال العماني', 'ر.ع', true),
 ((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'JOD', 'الدينار الأردني', 'د.أ', true),
-((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'EGP', 'الجنيه المصري', 'ج.م', true)
-ON CONFLICT DO NOTHING;
+((SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1), 'EGP', 'الجنيه المصري', 'ج.م', true);
 
 -- التحقق من النتيجة
 SELECT 
