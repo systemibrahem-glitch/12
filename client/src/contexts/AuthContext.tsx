@@ -67,10 +67,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const foundUser = users[0] as User;
 
-      // Verify password using bcryptjs (fallback method)
-      // This is a temporary solution until the PostgreSQL function is set up
-      const bcrypt = await import('bcryptjs');
-      const isValidPassword = await bcrypt.compare(password, foundUser.password_hash);
+      // Verify password using PostgreSQL crypt function
+      const { data: passwordCheck, error: passwordError } = await supabase
+        .rpc('check_password', { 
+          input_password: password, 
+          stored_hash: foundUser.password_hash 
+        });
+
+      let isValidPassword = false;
+
+      if (passwordError) {
+        console.error('Password check error:', passwordError);
+        // Fallback to bcryptjs if PostgreSQL function fails
+        const bcrypt = await import('bcryptjs');
+        isValidPassword = await bcrypt.compare(password, foundUser.password_hash);
+      } else {
+        isValidPassword = passwordCheck;
+      }
 
       if (!isValidPassword) {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
