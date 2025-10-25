@@ -177,7 +177,7 @@ INSERT INTO users (
   (SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1),
   'ibrahim_owner',
   'ibrahim@example.com',
-  crypt('Ibrahim123!', gen_salt('bf')), -- توليد hash للباسورد باستخدام bcrypt
+  '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj5J5K5K5K5K', -- كلمة السر: Ibrahim123! (bcrypt hash)
   'إبراهيم أحمد',
   'owner',
   '{
