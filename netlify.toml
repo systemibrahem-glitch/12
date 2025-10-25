@@ -1,10 +1,9 @@
 [build]
-  command = "cd client && pnpm install && pnpm build"
+  command = "cd client && npm install && npm run build"
   publish = "client/dist"
   
 [build.environment]
   NODE_VERSION = "20"
-  NPM_FLAGS = ""
 
 [[redirects]]
   from = "/*"
