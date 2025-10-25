@@ -16,11 +16,15 @@ export function useAuth(options?: UseAuthOptions) {
   const meQuery = trpc.auth.me.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: false,
+    enabled: false, // Disable TRPC queries for now
   });
 
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
       utils.auth.me.setData(undefined, null);
+    },
+    onError: (error) => {
+      console.warn('Logout mutation failed:', error);
     },
   });
 

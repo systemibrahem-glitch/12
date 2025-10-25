@@ -46,6 +46,13 @@ const trpcClient = trpc.createClient({
         return globalThis.fetch(input, {
           ...(init ?? {}),
           credentials: "include",
+        }).catch(error => {
+          console.warn('TRPC API not available, using fallback:', error);
+          // Return a mock response to prevent errors
+          return new Response(JSON.stringify({ error: 'API not available' }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+          });
         });
       },
     }),
