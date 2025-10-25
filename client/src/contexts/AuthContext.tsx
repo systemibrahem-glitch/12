@@ -67,11 +67,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const foundUser = users[0] as User;
 
-      // Verify password (in production, this should be done server-side)
-      // For now, we'll use a simple bcrypt-like comparison
-      // Note: This is a simplified version - in production use proper bcrypt
-      const bcrypt = await import('bcryptjs');
-      const isValidPassword = await bcrypt.compare(password, foundUser.password_hash);
+      // Verify password using PostgreSQL crypt function
+      // The password hash was created using crypt('password', gen_salt('bf'))
+      const { data: passwordCheck, error: passwordError } = await supabase
+        .rpc('check_password', { 
+          input_password: password, 
+          stored_hash: foundUser.password_hash 
+        });
+
+      if (passwordError) {
+        console.error('Password check error:', passwordError);
+        return { success: false, error: 'خطأ في التحقق من كلمة المرور' };
+      }
+
+      const isValidPassword = passwordCheck;
 
       if (!isValidPassword) {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };

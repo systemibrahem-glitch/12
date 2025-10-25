@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS stores (
 -- إنشاء جدول المستخدمين إذا لم يكن موجوداً
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  store_id UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
   username VARCHAR(50) UNIQUE NOT NULL,
   email VARCHAR(320),
   password_hash VARCHAR(255) NOT NULL,
@@ -36,6 +35,28 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   created_by UUID REFERENCES users(id)
 );
+
+-- إضافة عمود store_id إذا لم يكن موجوداً
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'users' 
+        AND column_name = 'store_id'
+    ) THEN
+        ALTER TABLE users ADD COLUMN store_id UUID;
+        
+        -- إضافة المفتاح الخارجي إذا كان جدول stores موجود
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'stores') THEN
+            ALTER TABLE users ADD CONSTRAINT fk_users_store_id 
+            FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE;
+        END IF;
+        
+        RAISE NOTICE 'تم إضافة عمود store_id إلى جدول users';
+    ELSE
+        RAISE NOTICE 'عمود store_id موجود بالفعل في جدول users';
+    END IF;
+END $$;
 
 -- إنشاء جدول العملات إذا لم يكن موجوداً
 CREATE TABLE IF NOT EXISTS currencies (
@@ -52,6 +73,14 @@ CREATE TABLE IF NOT EXISTS currencies (
 
 -- إزالة القيود المعيقة
 ALTER TABLE currencies DROP CONSTRAINT IF EXISTS currencies_code_check;
+
+-- إنشاء دالة للتحقق من كلمة المرور
+CREATE OR REPLACE FUNCTION check_password(input_password TEXT, stored_hash TEXT)
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN crypt(input_password, stored_hash) = stored_hash;
+END;
+$$ LANGUAGE plpgsql;
 
 -- إنشاء جدول فئات الفواتير إذا لم يكن موجوداً
 CREATE TABLE IF NOT EXISTS invoice_categories (
@@ -148,7 +177,7 @@ INSERT INTO users (
   (SELECT id FROM stores WHERE email = 'ibrahim@example.com' LIMIT 1),
   'ibrahim_owner',
   'ibrahim@example.com',
-  '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj5J5K5K5K5K', -- كلمة السر: Ibrahim123!
+  crypt('Ibrahim123!', gen_salt('bf')), -- توليد hash للباسورد باستخدام bcrypt
   'إبراهيم أحمد',
   'owner',
   '{

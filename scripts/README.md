@@ -175,7 +175,8 @@ pnpm init-db
 - هذا الخطأ يحدث بسبب قيود على عمود code
 
 ### خطأ: "column 'store_id' does not exist"
-- **الحل**: شغل `fix-currencies-table.sql` أولاً لإضافة عمود store_id
+- **للعملات**: شغل `fix-currencies-table.sql` أولاً لإضافة عمود store_id
+- **للمستخدمين**: شغل `fix-users-table.sql` أولاً لإضافة عمود store_id
 - أو استخدم `add-general-currencies.sql` لإضافة عملات عامة
 
 ### خطأ: "relation 'stores' does not exist"
